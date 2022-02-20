@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+  postgres:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=testing
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/financeview/dbdata
+
+volumes:
+  db-data:
