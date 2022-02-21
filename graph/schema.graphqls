@@ -26,3 +26,20 @@ input NewTodo {
 type Mutation {
   createTodo(input: NewTodo!): Todo!
 }
+
+scalar Date 
+
+type Expense {
+  Id: ID!
+  Date: Date
+  Description: String
+  Amount: Float
+  Categories: [Category!]
+  Comment: String
+}
+
+type Category {
+  Id: ID!
+  Name: String
+}
+
