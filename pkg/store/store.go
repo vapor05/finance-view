@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v4"
 )
@@ -33,10 +34,28 @@ func (db *Database) GetDescriptionId(ctx context.Context, d string) (int, bool, 
 }
 
 func (db *Database) CreateDescription(ctx context.Context, d string) (int, error) {
-	sql := `INSERT INTO financeview.description (description) VALUES ($1) RETURNING id`
+	sql := `INSERT INTO financeview.description (description, createdate) VALUES ($1, $2) RETURNING id`
 	var id int
-	if err := db.Conn.QueryRow(ctx, sql, d).Scan(&id); err != nil {
+	if err := db.Conn.QueryRow(ctx, sql, d, time.Now().UTC()).Scan(&id); err != nil {
 		return 0, fmt.Errorf("failed to insert new description into database, %w", err)
+	}
+	return id, nil
+}
+
+// 	CreateExpense(context.Context, time.Time, int, float64, string) (int, error)
+func (db *Database) CreateExpense(ctx context.Context, dt time.Time, did int, amt float64, cmt string) (int, error) {
+	sql := `INSERT INTO financeview.expense (date, description_id, amount, comment, createdate) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	var id int
+	if err := db.Conn.QueryRow(
+		ctx,
+		sql,
+		dt,
+		did,
+		amt,
+		cmt,
+		time.Now().UTC(),
+	).Scan(&id); err != nil {
+		return 0, fmt.Errorf("failed to insert new expense into database, %w", err)
 	}
 	return id, nil
 }
