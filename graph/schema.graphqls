@@ -1,37 +1,10 @@
-# GraphQL schema example
+# GraphQL finance-view schema
 #
-# https://gqlgen.com/getting-started/
-
-type Todo {
-  id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
-}
-
-type User {
-  id: ID!
-  name: String!
-}
-
-type Query {
-  todos: [Todo!]!
-}
-
-input NewTodo {
-  text: String!
-  userId: String!
-}
-
-type Mutation {
-  createTodo(input: NewTodo!): Todo!
-}
-
 scalar Date 
 
 type Expense {
   Id: ID!
-  Date: Date
+  Date: String
   Description: String
   Amount: Float
   Categories: [Category!]
@@ -43,3 +16,18 @@ type Category {
   Name: String
 }
 
+type Query {
+ expenses: [Expense!]!
+}
+
+input NewExpense {
+  date: String!
+  description: String!
+  amount: Float!
+  categories: [String!]!
+  comment: String
+}
+
+type Mutation {
+  createExpense(input: NewExpense!): Expense!
+}

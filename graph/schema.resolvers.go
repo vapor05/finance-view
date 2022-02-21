@@ -11,11 +11,11 @@ import (
 	"github.com/vapor05/financeview/graph/model"
 )
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+func (r *mutationResolver) CreateExpense(ctx context.Context, input model.NewExpense) (*model.Expense, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
+func (r *queryResolver) Expenses(ctx context.Context) ([]*model.Expense, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
