@@ -31,3 +31,12 @@ func (db *Database) GetDescriptionId(ctx context.Context, d string) (int, bool, 
 	}
 	return id, true, nil
 }
+
+func (db *Database) CreateDescription(ctx context.Context, d string) (int, error) {
+	sql := `INSERT INTO financeview.description (description) VALUES ($1) RETURNING id`
+	var id int
+	if err := db.Conn.QueryRow(ctx, sql, d).Scan(&id); err != nil {
+		return 0, fmt.Errorf("failed to insert new description into database, %w", err)
+	}
+	return id, nil
+}

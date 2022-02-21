@@ -50,3 +50,17 @@ func TestGetDescriptionId(t *testing.T) {
 	})
 
 }
+
+func TestCreateDescription(t *testing.T) {
+	db := Database{conn}
+	desc := "a test description"
+	actual, err := db.CreateDescription(context.Background(), desc)
+	if err != nil {
+		t.Fatalf("error running CreateDescription func, %v", err)
+	}
+	var want int
+	if err = conn.QueryRow(context.TODO(), "select id from financeview.description where description=$1", desc).Scan(&want); err != nil {
+		t.Fatalf("failed to get created id from db, %v", err)
+	}
+	assert.Equal(t, want, actual)
+}
