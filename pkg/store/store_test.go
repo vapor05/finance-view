@@ -50,7 +50,6 @@ func TestGetDescriptionId(t *testing.T) {
 		assert.True(t, ok)
 		assert.Equal(t, want, id)
 	})
-
 }
 
 func TestCreateDescription(t *testing.T) {
@@ -115,4 +114,34 @@ func TestCreateExpense(t *testing.T) {
 	assert.Equal(t, adid, did)
 	assert.Equal(t, aamtf, amt)
 	assert.Equal(t, acmt, cmt)
+}
+
+func TestGetCategoryId(t *testing.T) {
+	db := Database{conn}
+	t.Run("cat doesn't exist", func(t *testing.T) {
+		_, ok, err := db.GetCategoryId(context.Background(), "does not exist")
+		if err != nil {
+			t.Fatalf("error running GetCategoryId func, %v", err)
+		}
+		assert.False(t, ok)
+	})
+	t.Run("cat does exist", func(t *testing.T) {
+		var want int
+		if err := conn.QueryRow(context.TODO(), "INSERT INTO financeview.category (name) VALUES ('test category') RETURNING id").Scan(&want); err != nil {
+			t.Errorf("error inserting test category data into db, %v", err)
+		}
+		defer func() {
+			_, err := conn.Exec(context.TODO(), "TRUNCATE TABLE financeview.category")
+			if err != nil {
+				t.Fatalf("error cleaning up test data")
+			}
+		}()
+		id, ok, err := db.GetCategoryId(context.Background(), "test category")
+		if err != nil {
+			t.Errorf("error running GetCategoryId func, %v", err)
+		}
+		assert.True(t, ok)
+		assert.Equal(t, want, id)
+	})
+
 }

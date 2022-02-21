@@ -42,7 +42,6 @@ func (db *Database) CreateDescription(ctx context.Context, d string) (int, error
 	return id, nil
 }
 
-// 	CreateExpense(context.Context, time.Time, int, float64, string) (int, error)
 func (db *Database) CreateExpense(ctx context.Context, dt time.Time, did int, amt float64, cmt string) (int, error) {
 	sql := `INSERT INTO financeview.expense (date, description_id, amount, comment, createdate) VALUES ($1, $2, $3, $4, $5) RETURNING id`
 	var id int
@@ -58,4 +57,16 @@ func (db *Database) CreateExpense(ctx context.Context, dt time.Time, did int, am
 		return 0, fmt.Errorf("failed to insert new expense into database, %w", err)
 	}
 	return id, nil
+}
+
+func (db *Database) GetCategoryId(ctx context.Context, c string) (int, bool, error) {
+	sql := `SELECT id FROM financeview.category WHERE name=$1`
+	var id int
+	if err := db.Conn.QueryRow(ctx, sql, c).Scan(&id); err != nil {
+		if err == pgx.ErrNoRows {
+			return 0, false, nil
+		}
+		return 0, false, fmt.Errorf("failed to query database for category, %w", err)
+	}
+	return id, true, nil
 }
