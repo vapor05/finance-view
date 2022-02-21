@@ -7,8 +7,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/vapor05/finance-view/graph"
-	"github.com/vapor05/finance-view/graph/generated"
+	"github.com/vapor05/financeview/graph"
+	"github.com/vapor05/financeview/graph/generated"
 )
 
 const defaultPort = "8080"

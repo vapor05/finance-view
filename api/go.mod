@@ -1,4 +1,4 @@
-module github.com/vapor05/finance-view
+module github.com/vapor05/financeview
 
 go 1.17
 

@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/vapor05/finance-view/graph/generated"
-	"github.com/vapor05/finance-view/graph/model"
+	"github.com/vapor05/financeview/graph/generated"
+	"github.com/vapor05/financeview/graph/model"
 )
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
