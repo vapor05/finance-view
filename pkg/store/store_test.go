@@ -143,5 +143,56 @@ func TestGetCategoryId(t *testing.T) {
 		assert.True(t, ok)
 		assert.Equal(t, want, id)
 	})
+}
 
+func TestCreateCategory(t *testing.T) {
+	db := Database{conn}
+	name := "test category"
+	actual, err := db.CreateCategory(context.Background(), name)
+	if err != nil {
+		t.Fatalf("error running CreateCategory func, %v", err)
+	}
+	defer func() {
+		_, err := conn.Exec(context.TODO(), "TRUNCATE TABLE financeview.category")
+		if err != nil {
+			t.Fatalf("error cleaning up test data")
+		}
+	}()
+	var want int
+	if err = conn.QueryRow(context.TODO(), "select id from financeview.category where name=$1", name).Scan(&want); err != nil {
+		t.Fatalf("failed to get created id from db, %v", err)
+	}
+	assert.Equal(t, want, actual)
+	var aname string
+	if err = conn.QueryRow(context.TODO(), "select name from financeview.category where id=$1", actual).Scan(&aname); err != nil {
+		t.Fatalf("failed to get name from db, %v", err)
+	}
+	assert.Equal(t, name, aname)
+}
+
+func TestLinkExpenseCategory(t *testing.T) {
+	db := Database{conn}
+	eid := 15
+	cid := 8
+	actual, err := db.LinkExpenseCategory(context.TODO(), eid, cid)
+	if err != nil {
+		t.Fatalf("error running LinkExpenseCategory func, %v", err)
+	}
+	defer func() {
+		_, err := conn.Exec(context.TODO(), "TRUNCATE TABLE financeview.expense_category")
+		if err != nil {
+			t.Fatalf("error cleaning up test data")
+		}
+	}()
+	var want int
+	if err = conn.QueryRow(context.TODO(), "select id from financeview.expense_category where expense_id=$1", eid).Scan(&want); err != nil {
+		t.Fatalf("error getting created id from db, %v", err)
+	}
+	assert.Equal(t, actual, want)
+	var aeid, acid int
+	if err = conn.QueryRow(context.TODO(), "select expense_id, category_id from financeview.expense_category where id=$1", actual).Scan(&aeid, &acid); err != nil {
+		t.Fatalf("error getting created data from db, %v", err)
+	}
+	assert.Equal(t, eid, aeid)
+	assert.Equal(t, cid, acid)
 }

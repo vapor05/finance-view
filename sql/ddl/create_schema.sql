@@ -27,5 +27,6 @@ CREATE TABLE financeview.category (
 CREATE TABLE financeview.expense_category (
     id SERIAL PRIMARY KEY NOT NULL,
     expense_id INT NOT NULL,
-    category_id INT NOT NULL
+    category_id INT NOT NULL,
+    createdate TIMESTAMP
 );

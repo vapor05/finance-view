@@ -70,3 +70,21 @@ func (db *Database) GetCategoryId(ctx context.Context, c string) (int, bool, err
 	}
 	return id, true, nil
 }
+
+func (db *Database) CreateCategory(ctx context.Context, c string) (int, error) {
+	sql := `INSERT INTO financeview.category (name, createdate) VALUES ($1, $2) RETURNING id`
+	var id int
+	if err := db.Conn.QueryRow(ctx, sql, c, time.Now().UTC()).Scan(&id); err != nil {
+		return 0, fmt.Errorf("failed to insert new category into database, %w", err)
+	}
+	return id, nil
+}
+
+func (db *Database) LinkExpenseCategory(ctx context.Context, eid int, cid int) (int, error) {
+	sql := `INSERT INTO financeview.expense_category (expense_id, category_id, createdate) VALUES ($1, $2, $3) RETURNING id`
+	var id int
+	if err := db.Conn.QueryRow(ctx, sql, eid, cid, time.Now().UTC()).Scan(&id); err != nil {
+		return 0, fmt.Errorf("failed to insert new expense_category into database, %w", err)
+	}
+	return id, nil
+}
