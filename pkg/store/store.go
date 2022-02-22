@@ -12,14 +12,13 @@ type Database struct {
 	Conn *pgx.Conn
 }
 
-// type Database interface {
-// 	GetDescriptionId(context.Context, string) (int, bool, error)
-// 	CreateDescription(context.Context, string) (int, error)
-// 	CreateExpense(context.Context, time.Time, int, float64, string) (int, error)
-// 	GetCategoryId(context.Context, string) (int, bool, error)
-// 	CreateCategory(context.Context, string) (int, error)
-// 	LinkExpenseCategory(context.Context, int, int) (int, error)
-// }
+func NewDatabase(ctx context.Context, dbUrl string) (*Database, error) {
+	conn, err := pgx.Connect(ctx, dbUrl)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to app database, %w", err)
+	}
+	return &Database{conn}, nil
+}
 
 func (db *Database) GetDescriptionId(ctx context.Context, d string) (int, bool, error) {
 	sql := `SELECT id FROM financeview.description WHERE description=$1`

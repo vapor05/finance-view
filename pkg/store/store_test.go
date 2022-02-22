@@ -196,3 +196,15 @@ func TestLinkExpenseCategory(t *testing.T) {
 	assert.Equal(t, eid, aeid)
 	assert.Equal(t, cid, acid)
 }
+
+func TestNewDatabase(t *testing.T) {
+	db, err := NewDatabase(context.Background(), dbUrl)
+	if err != nil {
+		t.Fatalf("error running NewDatabase func, %v", err)
+	}
+	defer db.Conn.Close(context.Background())
+	err = db.Conn.Ping(context.Background())
+	assert.Nil(t, err)
+	_, err = NewDatabase(context.Background(), "not a database")
+	assert.Error(t, err)
+}
