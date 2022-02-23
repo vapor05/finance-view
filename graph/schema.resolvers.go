@@ -9,10 +9,15 @@ import (
 
 	"github.com/vapor05/financeview/graph/generated"
 	"github.com/vapor05/financeview/graph/model"
+	"github.com/vapor05/financeview/pkg/expense"
 )
 
 func (r *mutationResolver) CreateExpense(ctx context.Context, input model.NewExpense) (*model.Expense, error) {
-	panic(fmt.Errorf("not implemented"))
+	ex, err := expense.SaveExpense(ctx, input, &r.Db)
+	if err != nil {
+		return nil, fmt.Errorf("failed to save input new expense, %w", err)
+	}
+	return &ex, nil
 }
 
 func (r *queryResolver) Expenses(ctx context.Context) ([]*model.Expense, error) {
