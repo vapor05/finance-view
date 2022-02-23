@@ -9,5 +9,5 @@ import (
 )
 
 type Resolver struct {
-	Db store.Database
+	Db *store.Database
 }

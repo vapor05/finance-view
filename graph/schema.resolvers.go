@@ -13,7 +13,7 @@ import (
 )
 
 func (r *mutationResolver) CreateExpense(ctx context.Context, input model.NewExpense) (*model.Expense, error) {
-	ex, err := expense.SaveExpense(ctx, input, &r.Db)
+	ex, err := expense.SaveExpense(ctx, input, r.Db)
 	if err != nil {
 		return nil, fmt.Errorf("failed to save input new expense, %w", err)
 	}
