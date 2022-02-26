@@ -21,7 +21,11 @@ func (r *mutationResolver) CreateExpense(ctx context.Context, input model.NewExp
 }
 
 func (r *queryResolver) Expenses(ctx context.Context) ([]*model.Expense, error) {
-	panic(fmt.Errorf("not implemented"))
+	exps, err := expense.ListExpenses(ctx, r.Db)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get expenses, %w", err)
+	}
+	return exps, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

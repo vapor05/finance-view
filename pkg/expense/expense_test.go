@@ -3,6 +3,7 @@ package expense
 import (
 	"context"
 	"math/rand"
+	"sort"
 	"testing"
 	"time"
 
@@ -79,6 +80,36 @@ func (mdb *MockDatabase) LinkExpenseCategory(ctx context.Context, eid int, cid i
 	}{id, eid, cid}
 	mdb.link[id] = r
 	return id, nil
+}
+
+func (mdb *MockDatabase) ListAllExpenses(ctx context.Context) ([]model.Expense, error) {
+	var exps []model.Expense
+	for eid, e := range mdb.exp {
+		exp := model.Expense{
+			Id:          eid,
+			Date:        e.Date.Format("01-02-2006"),
+			Description: mdb.desc[e.Did],
+			Amount:      e.Amount,
+			Comment:     e.Comment,
+		}
+		for _, l := range mdb.link {
+			if l.Eid == eid {
+				c := model.Category{
+					Id:   l.Cid,
+					Name: mdb.cat[l.Cid],
+				}
+				exp.Categories = append(exp.Categories, c)
+			}
+		}
+		sort.Slice(exp.Categories, func(i, j int) bool {
+			return exp.Categories[i].Id < exp.Categories[j].Id
+		})
+		exps = append(exps, exp)
+	}
+	sort.Slice(exps, func(i, j int) bool {
+		return exps[i].Id < exps[j].Id
+	})
+	return exps, nil
 }
 
 func TestSaveExpense(t *testing.T) {
@@ -183,4 +214,59 @@ func TestSaveExpense(t *testing.T) {
 		want.Id = actual.Id
 		assert.Equal(t, want, actual)
 	})
+}
+
+func TestListExpenses(t *testing.T) {
+	nt := time.Now()
+	mock := MockDatabase{
+		desc: map[int]string{2: "test desc", 6: "another desc"},
+		cat:  map[int]string{5: "test cat", 10: "cat 2", 12: "cat 3"},
+		exp: map[int]struct {
+			Id      int
+			Date    time.Time
+			Did     int
+			Amount  float64
+			Comment string
+		}{
+			1: {Id: 1, Date: nt, Did: 2, Amount: 15.0, Comment: "test comment"},
+			4: {Id: 4, Date: nt, Did: 6, Amount: 4.88, Comment: "test comment 2"},
+		},
+		link: map[int]struct {
+			Id  int
+			Eid int
+			Cid int
+		}{
+			1: {Id: 1, Eid: 1, Cid: 5},
+			2: {Id: 2, Eid: 4, Cid: 10},
+			3: {Id: 3, Eid: 4, Cid: 12},
+		},
+	}
+	want := []*model.Expense{
+		{
+			Id:          1,
+			Date:        nt.Format("01-02-2006"),
+			Description: "test desc",
+			Amount:      15.0,
+			Categories: []model.Category{
+				{Id: 5, Name: "test cat"},
+			},
+			Comment: "test comment",
+		},
+		{
+			Id:          4,
+			Date:        nt.Format("01-02-2006"),
+			Description: "another desc",
+			Amount:      4.88,
+			Categories: []model.Category{
+				{Id: 10, Name: "cat 2"},
+				{Id: 12, Name: "cat 3"},
+			},
+			Comment: "test comment 2",
+		},
+	}
+	actual, err := ListExpenses(context.Background(), &mock)
+	if err != nil {
+		t.Fatalf("error running ListExpenses func, %v", err)
+	}
+	assert.Equal(t, want, actual)
 }

@@ -15,6 +15,7 @@ type Database interface {
 	GetCategoryId(context.Context, string) (int, bool, error)
 	CreateCategory(context.Context, string) (int, error)
 	LinkExpenseCategory(context.Context, int, int) (int, error)
+	ListAllExpenses(context.Context) ([]model.Expense, error)
 }
 
 func SaveExpense(ctx context.Context, ne model.NewExpense, db Database) (model.Expense, error) {
@@ -63,4 +64,16 @@ func SaveExpense(ctx context.Context, ne model.NewExpense, db Database) (model.E
 		Comment:     *ne.Comment,
 	}
 	return e, nil
+}
+
+func ListExpenses(ctx context.Context, db Database) ([]*model.Expense, error) {
+	ex, err := db.ListAllExpenses(ctx)
+	if err != nil {
+		return []*model.Expense{}, fmt.Errorf("failed to list all expenses, %w", err)
+	}
+	var exp []*model.Expense
+	for i := range ex {
+		exp = append(exp, &ex[i])
+	}
+	return exp, nil
 }

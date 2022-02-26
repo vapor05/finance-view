@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strconv"
 	"testing"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/vapor05/financeview/graph/model"
 )
 
 const dbUrl = "postgres://postgres:testing@localhost:5432/financeview"
@@ -207,4 +209,95 @@ func TestNewDatabase(t *testing.T) {
 	assert.Nil(t, err)
 	_, err = NewDatabase(context.Background(), "not a database")
 	assert.Error(t, err)
+}
+
+func Test_moneyToFloat(t *testing.T) {
+	cases := []struct {
+		name  string
+		input string
+		want  float64
+	}{
+		{name: "$45", input: "$45", want: 45.0},
+		{name: "$105.35", input: "$105.35", want: 105.35},
+		{name: "$0", input: "$0", want: 0},
+		{name: "$0.0004", input: "$0.0004", want: 0.0004},
+		{name: "-$5.68", input: "-$5.68", want: -5.68},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			actual, err := moneyToFloat(c.input)
+			if err != nil {
+				t.Fatalf("error running moneyToFloat func, %v", err)
+			}
+			assert.Equal(t, c.want, actual)
+		})
+	}
+}
+
+func cleanUpDb() error {
+	_, err := conn.Exec(context.TODO(), "TRUNCATE TABLE financeview.description")
+	if err != nil {
+		return fmt.Errorf("error cleaning up test data, %w", err)
+	}
+	_, err = conn.Exec(context.TODO(), "TRUNCATE TABLE financeview.expense")
+	if err != nil {
+		return fmt.Errorf("error cleaning up test data, %w", err)
+	}
+	_, err = conn.Exec(context.TODO(), "TRUNCATE TABLE financeview.category")
+	if err != nil {
+		return fmt.Errorf("error cleaning up test data, %w", err)
+	}
+	_, err = conn.Exec(context.TODO(), "TRUNCATE TABLE financeview.expense_category")
+	if err != nil {
+		return fmt.Errorf("error cleaning up test data, %w", err)
+	}
+	return nil
+}
+func TestListAllExpenses(t *testing.T) {
+	// create test data
+	ctx := context.Background()
+	desc := "test desc"
+	var eid, did, cid int
+	if err := conn.QueryRow(ctx, "INSERT INTO financeview.description (description) VALUES ($1) RETURNING id", desc).Scan(&did); err != nil {
+		t.Fatalf("failed to setup test data, %v", err)
+	}
+	dt := time.Date(2022, time.February, 26, 0, 0, 0, 0, time.Local)
+	amt := 105.65
+	cmt := "test comment"
+	if err := conn.QueryRow(ctx, "INSERT INTO financeview.expense (date, description_id, amount, comment) VALUES ($1,$2,$3,$4) RETURNING id", dt, did, amt, cmt).Scan(&eid); err != nil {
+		t.Fatalf("failed to setup test data, %v", err)
+	}
+	cname := "test cat"
+	if err := conn.QueryRow(ctx, "INSERT INTO financeview.category (name) VALUES ($1) RETURNING id", cname).Scan(&cid); err != nil {
+		t.Fatalf("failed to setup test data, %v", err)
+	}
+	_, err := conn.Exec(ctx, "INSERT INTO financeview.expense_category (expense_id,category_id) VALUES ($1, $2)", eid, cid)
+	if err != nil {
+		t.Fatalf("failed to setup test data, %v", err)
+	}
+	defer func() {
+		err := cleanUpDb()
+		if err != nil {
+			t.Fatalf("failed to clean up test data, %v", err)
+		}
+	}()
+	want := []model.Expense{
+		{
+			Id:          eid,
+			Date:        dt.Format("01-02-2006"),
+			Description: desc,
+			Amount:      amt,
+			Categories: []model.Category{
+				{Id: cid, Name: cname},
+			},
+			Comment: cmt,
+		},
+	}
+	db := Database{conn}
+	actual, err := db.ListAllExpenses(context.Background())
+	if err != nil {
+		t.Fatalf("error running ListAllExpenses func, %v", err)
+	}
+	assert.Equal(t, want, actual)
+
 }
