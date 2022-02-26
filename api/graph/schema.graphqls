@@ -1,0 +1,33 @@
+# GraphQL finance-view schema
+#
+scalar Date 
+
+type Expense {
+  Id: ID!
+  Date: String
+  Description: String
+  Amount: Float
+  Categories: [Category!]
+  Comment: String
+}
+
+type Category {
+  Id: ID!
+  Name: String
+}
+
+type Query {
+ expenses: [Expense!]!
+}
+
+input NewExpense {
+  date: String!
+  description: String!
+  amount: Float!
+  categories: [String!]!
+  comment: String
+}
+
+type Mutation {
+  createExpense(input: NewExpense!): Expense!
+}
