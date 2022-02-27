@@ -13,7 +13,7 @@ import (
 	"github.com/vapor05/financeview/graph/model"
 )
 
-const dbUrl = "postgres://postgres:testing@localhost:5432/financeview"
+const dbUrl = "postgres://postgres:testing@localhost:5432/postgres"
 
 var conn *pgx.Conn
 
