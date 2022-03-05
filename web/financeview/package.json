@@ -1,13 +1,13 @@
 {
   "dependencies": {
     "next": "^12.1.0",
+    "package.json": "^2.0.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "name": "financeview",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "next",
