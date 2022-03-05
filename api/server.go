@@ -8,6 +8,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/vapor05/financeview/graph"
 	"github.com/vapor05/financeview/graph/generated"
@@ -41,6 +42,11 @@ func playgroundHandler() gin.HandlerFunc {
 func main() {
 	// Setting up Gin
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"OPTIONS", "POST"},
+		AllowHeaders: []string{"Origin", "Content-Type"},
+	}))
 	gh, err := graphqlHandler()
 	if err != nil {
 		log.Fatalf("failed to setup graphql handler, %v", err)
