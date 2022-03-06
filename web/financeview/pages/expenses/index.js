@@ -1,10 +1,14 @@
 import Link from 'next/Link'
 import Head from 'next/head'
+import Table from '../../components/Table'
 import styles from '../../styles.module.css'
 
 export default function Expenses() {
-    const data = getData()
-    console.log(data)
+    const exps = getData()
+    console.log(exps)
+    const data = {
+        data: exps
+    }
     return (
         <>
             <Head>
@@ -14,7 +18,8 @@ export default function Expenses() {
             <h2>
                 <Link href="/"><a>Home</a></Link>
             </h2>
-            
+            <br></br>
+            <Table>{data}</Table>
         </>
     )
 }
@@ -41,7 +46,10 @@ export async function getData() {
     )
     const json = await res.json()
     console.log(json)
+    const data = json.data
+    console.log(data)
+    // const exps = JSON.parse(json)
     return {
-        props: { json }
+        props: { data }
     }
 }
