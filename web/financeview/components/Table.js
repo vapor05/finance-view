@@ -1,40 +1,27 @@
 import React from 'react'
+import styles from './table.module.css'
+
 class Table extends React.Component {
     constructor(props) {
         super(props)
-        var cols = ['test', 'column1']
-        var data = [['a', 'b'], ['1',2]]
-        const exps = props.data
-        console.log("printing exps")
-        console.log(exps)
-        // const elm = exps[0];
-        // console.log(elm)
-        // for (let key in Object.keys(elm)) {
-        //     cols.push(key)
-        // }
-        // for (let elm in exps) {
-        //     row = []
-        //     for (let key in cols) {
-        //         row.push(elm[key])
-        //     }
-        //     data.push(row)
-        // }
+        console.log("printing props")
+        console.log(props)
         this.state = {
-            cols: cols,
-            data: data
+            cols: props.cols,
+            data: props.data
         }
     }
 
     render() {
         return (
-            <table>
+            <table className={styles.table}>
                 <thead>
                     <tr>
-                        {this.state.cols.map(name => <th key={name}>{name}</th>)}
+                        {this.props.cols.map(name => <th className={styles.th} key={name}>{name}</th>)}
                     </tr>
                 </thead>
                 <tbody>
-                    {this.state.data.map(row => <tr key={row}>{row.map(data => <td key={data}>{data}</td>)}</tr>)}
+                    {this.props.data.map((row, index) => <tr key={index}>{row.map((data, index) => <td className={styles.td} key={index}>{data}</td>)}</tr>)}
                 </tbody>
             </table>
         )
