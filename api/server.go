@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -39,9 +43,21 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
+func LogRequest(c *gin.Context) {
+	b, err := io.ReadAll(ioutil.NopCloser(c.Request.Body))
+	if err != nil {
+		log.Printf("error reading request body, %v", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
+	log.Printf("Request: %s", b)
+	c.Request.Body = ioutil.NopCloser(bytes.NewReader(b))
+	c.Next()
+}
+
 func main() {
 	// Setting up Gin
 	r := gin.Default()
+	r.Use(LogRequest)
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{"OPTIONS", "POST"},
