@@ -1,6 +1,7 @@
 import Link from 'next/Link'
 import Head from 'next/head'
 import Table from '../../components/Table'
+import NewExpense from '../../components/NewExpense'
 import styles from '../../styles.module.css'
 import React from 'react'
 
@@ -56,8 +57,10 @@ class Expenses extends React.Component {
             <h2>
                 <Link href="/"><a>Home</a></Link>
             </h2>
-            <br></br>
+            <br/>
             <Table cols={this.state.cols} data={this.state.data} />
+            <br/>
+            <NewExpense />
         </>
         )
     }
